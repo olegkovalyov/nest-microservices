@@ -1,0 +1,132 @@
+{
+  "version": 3,
+  "name": "Education Platform API Gateway",
+  "port": 8080,
+  "cache_ttl": "300s",
+  "timeout": "3000ms",
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": ["*"],
+      "allow_methods": ["GET", "POST", "PUT", "DELETE"],
+      "allow_headers": ["Origin", "Authorization", "Content-Type"],
+      "expose_headers": ["Content-Length"],
+      "max_age": "12h"
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/health",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/auth/{path}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/{path}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/auth/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/{path}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/realms/{realm}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/realms/{realm}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/realms/{realm}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/realms/{realm}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/realms/{realm}/{path}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/realms/{realm}/{path}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/realms/{realm}/{path}",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/realms/{realm}/{path}",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/realms/{realm}/protocol/openid-connect/token",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/realms/{realm}/protocol/openid-connect/token",
+          "host": ["http://keycloak:8080"],
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/protected",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/master/protocol/openid-connect/certs",
+          "disable_jwk_security": true
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/realms/master",
+          "host": ["http://keycloak:8080"]
+        }
+      ]
+    }
+  ]
+}
