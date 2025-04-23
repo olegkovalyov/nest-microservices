@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class KafkaService {
@@ -28,7 +29,7 @@ export class KafkaService {
   async sendMessage(topic: string, message: any) {
     try {
       this.logger.log(`Sending message to topic: ${topic}`);
-      return await this.kafkaClient.send(topic, message).toPromise();
+      return await firstValueFrom(this.kafkaClient.send(topic, message));
     } catch (error) {
       this.logger.error(`Error sending message to topic ${topic}:`, error);
       throw error;

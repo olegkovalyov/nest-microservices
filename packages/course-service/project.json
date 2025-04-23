@@ -1,7 +1,7 @@
 {
-  "name": "api-orchestrator",
+  "name": "course-service",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/api-orchestrator/src",
+  "sourceRoot": "packages/course-service/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -11,11 +11,11 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/packages/api-orchestrator",
-        "main": "packages/api-orchestrator/src/main.ts",
-        "tsConfig": "packages/api-orchestrator/tsconfig.app.json",
-        "assets": ["packages/api-orchestrator/src/assets"],
-        "webpackConfig": "packages/api-orchestrator/webpack.config.js"
+        "outputPath": "dist/packages/course-service",
+        "main": "packages/course-service/src/main.ts",
+        "tsConfig": "packages/course-service/tsconfig.app.json",
+        "assets": ["packages/course-service/src/assets"],
+        "webpackConfig": "packages/course-service/webpack.config.js"
       },
       "configurations": {
         "development": {
@@ -34,16 +34,16 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "api-orchestrator:build",
+        "buildTarget": "course-service:build",
         "watch": true,
         "runtimeArgs": ["--inspect=0.0.0.0:9229", "--nolazy"]
       },
       "configurations": {
         "development": {
-          "buildTarget": "api-orchestrator:build:development"
+          "buildTarget": "course-service:build:development"
         },
         "production": {
-          "buildTarget": "api-orchestrator:build:production"
+          "buildTarget": "course-service:build:production"
         }
       }
     },
@@ -51,14 +51,14 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/api-orchestrator/**/*.ts"]
+        "lintFilePatterns": ["packages/course-service/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/api-orchestrator/jest.config.ts",
+        "jestConfig": "packages/course-service/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {
@@ -70,4 +70,4 @@
     }
   },
   "tags": []
-}
+} 

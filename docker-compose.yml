@@ -11,6 +11,7 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_FEATURES: preview
     ports:
       - "8080:8080"
     command: ["start-dev", "--import-realm"]
@@ -43,6 +44,25 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - microservices-network
+
+  # Kafka Topic Initialization
+  kafka-init:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    command: >
+      bash -c "
+        echo 'Waiting for Kafka to be ready...' &&
+        cub kafka-ready -b kafka:29092 1 120 &&
+        echo 'Creating Kafka topics...' &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1 --topic user-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1 --topic course-events &&
+        kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1 --topic notification-events &&
+        echo 'Successfully created the following topics:' &&
+        kafka-topics --list --bootstrap-server kafka:29092
+      "
     networks:
       - microservices-network
 

@@ -22,6 +22,8 @@
     {
       "username": "admin_user",
       "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -37,6 +39,8 @@
     {
       "username": "instructor_user",
       "email": "instructor@example.com",
+      "firstName": "Instructor",
+      "lastName": "Teacher",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -52,6 +56,8 @@
     {
       "username": "student_user",
       "email": "student@example.com",
+      "firstName": "Student",
+      "lastName": "Learner",
       "enabled": true,
       "emailVerified": true,
       "credentials": [

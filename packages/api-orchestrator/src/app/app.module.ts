@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { KafkaModule } from './kafka/kafka.module';
-import { KeycloakModule } from './auth/keycloak.module';
+import { AuthModule } from './auth/keycloak.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { UserModule } from './users/user.module';
@@ -14,7 +14,7 @@ import { UserModule } from './users/user.module';
       isGlobal: true,
     }),
     KafkaModule,
-    KeycloakModule,
+    AuthModule,
     UserModule,
   ],
   controllers: [AppController],
@@ -22,7 +22,8 @@ import { UserModule } from './users/user.module';
     AppService,
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useFactory: (authGuard: AuthGuard) => authGuard,
+      inject: [AuthGuard],
     },
   ],
 })

@@ -1,6 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { KeycloakService } from './keycloak.service';
 import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from './roles.decorator';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -10,39 +12,60 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    // Check if route is marked as public
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-    if (!token) {
+    if (isPublic) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest();
+    const authHeader = request.headers.authorization;
+
+    if (!authHeader) {
       throw new UnauthorizedException('No token provided');
     }
 
+    const [bearer, token] = authHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid token format');
+    }
+
     const isValid = await this.keycloakService.validateToken(token);
+
     if (!isValid) {
       throw new UnauthorizedException('Invalid token');
     }
 
-    // Get roles from metadata
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
-    if (!roles) {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    // Get user info and check roles
-    const userInfo = await this.keycloakService.getUserInfo(token);
-    const hasRole = roles.some(role => userInfo.realm_access?.roles?.includes(role));
-    
-    if (!hasRole) {
-      throw new UnauthorizedException('Insufficient permissions');
+    try {
+      const userInfo = await this.keycloakService.getUserInfo(token);
+      const userRoles = userInfo.realm_access?.roles || [];
+
+      const hasRequiredRole = requiredRoles.some((role: string) => userRoles.includes(role));
+
+      if (!hasRequiredRole) {
+        throw new ForbiddenException('Insufficient permissions');
+      }
+
+      // Attach user to request for potential use in controllers
+      request.user = userInfo;
+      
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException('Failed to validate user roles');
     }
-
-    // Attach user info to request
-    request.user = userInfo;
-    return true;
-  }
-
-  private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 } 

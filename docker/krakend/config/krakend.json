@@ -11,6 +11,12 @@
       "allow_headers": ["Origin", "Authorization", "Content-Type"],
       "expose_headers": ["Content-Length"],
       "max_age": "12h"
+    },
+    "qos/ratelimit/router": {
+      "max_rate": 100,
+      "client_max_rate": 10,
+      "strategy": "ip",
+      "deny_message": "Rate limit exceeded"
     }
   },
   "endpoints": [
@@ -119,12 +125,36 @@
           "alg": "RS256",
           "jwk_url": "http://keycloak:8080/realms/master/protocol/openid-connect/certs",
           "disable_jwk_security": true
+        },
+        "qos/ratelimit/endpoint": {
+          "max_rate": 5,
+          "window": "1m"
         }
       },
       "backend": [
         {
           "url_pattern": "/realms/master",
           "host": ["http://keycloak:8080"]
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/courses",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
+          "roles_key": "realm_access.roles",
+          "roles": ["student", "instructor", "admin"],
+          "disable_jwk_security": true
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/courses",
+          "host": ["http://api-orchestrator:3000"]
         }
       ]
     }
