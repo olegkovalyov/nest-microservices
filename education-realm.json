@@ -1,0 +1,123 @@
+{
+  "realm": "education",
+  "enabled": true,
+  "displayName": "Education Platform",
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Top-level administrator"
+      },
+      {
+        "name": "instructor",
+        "description": "Can create and manage courses"
+      },
+      {
+        "name": "student",
+        "description": "Can access courses and submit work"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin_user",
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "StrongAdminPassword123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin"],
+      "requiredActions": []
+    },
+    {
+      "username": "instructor_user",
+      "email": "instructor@example.com",
+      "firstName": "Instructor",
+      "lastName": "Teacher",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "SecureInstructorPwd456!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["instructor"],
+      "requiredActions": []
+    },
+    {
+      "username": "student_user",
+      "email": "student@example.com",
+      "firstName": "Student",
+      "lastName": "Learner",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "StudentPass789?",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["student"],
+      "requiredActions": []
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "education-app",
+      "name": "Education Application",
+      "enabled": true,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"],
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "postman-client",
+      "name": "Postman API Testing",
+      "enabled": true,
+      "redirectUris": ["https://oauth.pstmn.io/v1/callback"],
+      "webOrigins": ["*"],
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "access.token.lifespan": "1800",
+        "refresh.token.lifespan": "86400"
+      }
+    }
+  ],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "xXSSProtection": "1; mode=block"
+  },
+  "smtpServer": {},
+  "eventsEnabled": false,
+  "eventsListeners": ["jboss-logging"],
+  "enabledEventTypes": [],
+  "adminEventsEnabled": false,
+  "adminEventsDetailsEnabled": false,
+  "internationalizationEnabled": false,
+  "supportedLocales": ["en"],
+  "defaultLocale": "en",
+  "bruteForceProtected": true,
+  "passwordPolicy": "length(8) and forceExpiredPasswordChange(365) and notUsername"
+}
