@@ -27,11 +27,12 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "StrongAdminPassword123!",
           "temporary": false
         }
       ],
-      "realmRoles": ["admin"]
+      "realmRoles": ["admin"],
+      "requiredActions": []
     },
     {
       "username": "instructor_user",
@@ -41,11 +42,12 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "SecureInstructorPwd456!",
           "temporary": false
         }
       ],
-      "realmRoles": ["instructor"]
+      "realmRoles": ["instructor"],
+      "requiredActions": []
     },
     {
       "username": "student_user",
@@ -55,11 +57,12 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "StudentPass789?",
           "temporary": false
         }
       ],
-      "realmRoles": ["student"]
+      "realmRoles": ["student"],
+      "requiredActions": []
     }
   ],
   "clients": [
@@ -110,5 +113,5 @@
   "supportedLocales": ["en"],
   "defaultLocale": "en",
   "bruteForceProtected": true,
-  "passwordPolicy": "length(8)"
+  "passwordPolicy": "length(8) and forceExpiredPasswordChange(365) and notUsername"
 }
