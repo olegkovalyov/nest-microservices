@@ -189,150 +189,78 @@
     {
       "endpoint": "/api/v1/auth/logout",
       "method": "POST",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/v1/auth/logout",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     },
     {
       "endpoint": "/api/v1/auth/me",
       "method": "GET",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/v1/auth/me",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     },
     {
       "endpoint": "/api/v1/auth/admin-resource",
       "method": "GET",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/v1/auth/admin-resource",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     },
     {
       "endpoint": "/api/v1/auth/instructor-resource",
       "method": "GET",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/v1/auth/instructor-resource",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     },
     {
       "endpoint": "/api/v1/auth/student-resource",
       "method": "GET",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/v1/auth/student-resource",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     },
     {
       "endpoint": "/api/courses",
       "method": "GET",
-      "output_encoding": "json",
-      "input_headers": ["Authorization"],
-      "extra_config": {
-        "proxy": {
-          "static": {
-            "strategy": "always"
-          }
-        }
-      },
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization", "Content-Type"],
       "backend": [
         {
           "url_pattern": "/api/courses",
           "host": ["http://host.docker.internal:3000"],
-          "encoding": "json",
-          "extra_config": {
-            "backend/http": {
-              "return_error_details": "original"
-            }
-          }
+          "encoding": "no-op"
         }
       ]
     }

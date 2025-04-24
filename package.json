@@ -8,7 +8,8 @@
     "lint": "nx run-many --target=lint --all",
     "e2e": "nx run-many --target=e2e --all",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start:services": "nx run-many --target=serve --projects=api-orchestrator,user-service --parallel"
   },
   "private": true,
   "dependencies": {
