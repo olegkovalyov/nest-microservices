@@ -32,22 +32,22 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto): Promise<TokenResponse> {
     try {
       console.log('Login attempt with data:', JSON.stringify(loginDto));
-      
+
       if (!loginDto.username || !loginDto.password) {
         console.log('Missing username or password');
         throw new HttpException('Username and password are required', HttpStatus.BAD_REQUEST);
       }
-      
+
       return await this.keycloakService.login(loginDto.username, loginDto.password);
     } catch (error) {
       console.error('Login error:', error.message);
-      
+
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
-        error.response?.data?.error_description || error.message || 'Authentication failed', 
+        error.response?.data?.error_description || error.message || 'Authentication failed',
         error.status || HttpStatus.UNAUTHORIZED
       );
     }
@@ -68,6 +68,7 @@ export class AuthController {
 
   @Get('me')
   async getProfile(@Req() request: Request): Promise<any> {
+    console.log('works');
     const token = request.headers.authorization?.split(' ')[1];
     if (!token) {
       throw new HttpException('No token provided', HttpStatus.UNAUTHORIZED);

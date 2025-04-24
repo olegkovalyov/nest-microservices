@@ -82,21 +82,22 @@ export class KeycloakService {
       this.logger.log(`Using Keycloak URL: ${this.keycloakUrl}`);
       this.logger.log(`Using Realm: ${this.realm}`);
       this.logger.log(`Using Client ID: ${this.clientId}`);
-      
+
       const data: Record<string, string> = {
         grant_type: 'password',
         client_id: this.clientId,
         username,
         password,
       };
-      
+
       // If client_secret is provided, add it to the request
       if (this.clientSecret) {
         data['client_secret'] = this.clientSecret;
       }
-      
+
       this.logger.log(`Sending request to Keycloak token endpoint with data: ${JSON.stringify(data, null, 2)}`);
-      
+
+      this.logger.log(`${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token\``);
       const response = await axios.post(
         `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`,
         qs.stringify(data),
@@ -106,7 +107,7 @@ export class KeycloakService {
           },
         },
       );
-      
+
       this.logger.log('Login successful');
       return response.data;
     } catch (error) {
@@ -124,23 +125,41 @@ export class KeycloakService {
       if (!refreshToken) {
         throw new UnauthorizedException('No refresh token provided');
       }
+
+      this.logger.log(`Attempting to refresh token with client ID: ${this.clientId}`);
+      
+      const data: Record<string, string> = {
+        grant_type: 'refresh_token',
+        client_id: this.clientId,
+        refresh_token: refreshToken,
+      };
+
+      // Добавляем client_secret только если он установлен
+      if (this.clientSecret) {
+        data.client_secret = this.clientSecret;
+      }
+
+      this.logger.log(`Sending refresh request to Keycloak with data: ${JSON.stringify(data, null, 2)}`);
+      this.logger.log(`Token endpoint: ${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`);
+
       const response = await axios.post(
         `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`,
-        qs.stringify({
-          grant_type: 'refresh_token',
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-          refresh_token: refreshToken,
-        }),
+        qs.stringify(data),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         },
       );
+
+      this.logger.log('Token refresh successful');
       return response.data;
     } catch (error) {
       this.logger.error('Token refresh failed:', error.response?.data || error.message);
+      if (error.response) {
+        this.logger.error(`Error status: ${error.response.status}`);
+        this.logger.error(`Error data: ${JSON.stringify(error.response.data)}`);
+      }
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -150,21 +169,39 @@ export class KeycloakService {
       if (!refreshToken) {
         return;
       }
+      
+      this.logger.log(`Attempting to logout with client ID: ${this.clientId}`);
+      
+      const data: Record<string, string> = {
+        client_id: this.clientId,
+        refresh_token: refreshToken,
+      };
+
+      // Добавляем client_secret только если он установлен
+      if (this.clientSecret) {
+        data.client_secret = this.clientSecret;
+      }
+
+      this.logger.log(`Sending logout request to Keycloak with data: ${JSON.stringify(data, null, 2)}`);
+      this.logger.log(`Logout endpoint: ${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/logout`);
+      
       await axios.post(
         `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/logout`,
-        qs.stringify({
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-          refresh_token: refreshToken,
-        }),
+        qs.stringify(data),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         },
       );
+      
+      this.logger.log('Logout successful');
     } catch (error) {
       this.logger.error('Logout failed:', error.response?.data || error.message);
+      if (error.response) {
+        this.logger.error(`Error status: ${error.response.status}`);
+        this.logger.error(`Error data: ${JSON.stringify(error.response.data)}`);
+      }
       // We don't throw here, just log the error
     }
   }

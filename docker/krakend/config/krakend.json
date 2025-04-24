@@ -17,6 +17,9 @@
       "client_max_rate": 10,
       "strategy": "ip",
       "deny_message": "Rate limit exceeded"
+    },
+    "router": {
+      "return_error_details": "original"
     }
   },
   "endpoints": [
@@ -139,6 +142,200 @@
       ]
     },
     {
+      "endpoint": "/api/v1/auth/login",
+      "method": "POST",
+      "output_encoding": "json",
+      "extra_config": {
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/login",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/refresh",
+      "method": "POST",
+      "output_encoding": "json",
+      "extra_config": {
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/refresh",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/logout",
+      "method": "POST",
+      "output_encoding": "json",
+      "extra_config": {
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/logout",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/me",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
+          "disable_jwk_security": true
+        },
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/me",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/admin-resource",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
+          "roles_key": "realm_access.roles",
+          "roles": ["admin"],
+          "disable_jwk_security": true
+        },
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/admin-resource",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/instructor-resource",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
+          "roles_key": "realm_access.roles",
+          "roles": ["instructor", "admin"],
+          "disable_jwk_security": true
+        },
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/instructor-resource",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/auth/student-resource",
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
+          "roles_key": "realm_access.roles",
+          "roles": ["student", "instructor", "admin"],
+          "disable_jwk_security": true
+        },
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/api/v1/auth/student-resource",
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
+        }
+      ]
+    },
+    {
       "endpoint": "/api/courses",
       "method": "GET",
       "output_encoding": "json",
@@ -149,12 +346,23 @@
           "roles_key": "realm_access.roles",
           "roles": ["student", "instructor", "admin"],
           "disable_jwk_security": true
+        },
+        "proxy": {
+          "static": {
+            "strategy": "always"
+          }
         }
       },
       "backend": [
         {
           "url_pattern": "/api/courses",
-          "host": ["http://api-orchestrator:3000"]
+          "host": ["http://host.docker.internal:3000"],
+          "encoding": "json",
+          "extra_config": {
+            "backend/http": {
+              "return_error_details": "original"
+            }
+          }
         }
       ]
     }
