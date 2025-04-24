@@ -19,7 +19,15 @@
       "deny_message": "Rate limit exceeded"
     },
     "router": {
-      "return_error_details": "original"
+      "return_error_details": "original",
+      "forwarded_by_client_ip": true,
+      "disable_host_sanitize": true
+    },
+    "telemetry/logging": {
+      "level": "DEBUG",
+      "prefix": "[KRAKEND]",
+      "syslog": false,
+      "stdout": true
     }
   },
   "endpoints": [
@@ -169,6 +177,7 @@
       "endpoint": "/api/v1/auth/refresh",
       "method": "POST",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
         "proxy": {
           "static": {
@@ -193,6 +202,7 @@
       "endpoint": "/api/v1/auth/logout",
       "method": "POST",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
         "proxy": {
           "static": {
@@ -217,12 +227,8 @@
       "endpoint": "/api/v1/auth/me",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
-          "disable_jwk_security": true
-        },
         "proxy": {
           "static": {
             "strategy": "always"
@@ -246,14 +252,8 @@
       "endpoint": "/api/v1/auth/admin-resource",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
-          "roles_key": "realm_access.roles",
-          "roles": ["admin"],
-          "disable_jwk_security": true
-        },
         "proxy": {
           "static": {
             "strategy": "always"
@@ -277,14 +277,8 @@
       "endpoint": "/api/v1/auth/instructor-resource",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
-          "roles_key": "realm_access.roles",
-          "roles": ["instructor", "admin"],
-          "disable_jwk_security": true
-        },
         "proxy": {
           "static": {
             "strategy": "always"
@@ -308,14 +302,8 @@
       "endpoint": "/api/v1/auth/student-resource",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
-          "roles_key": "realm_access.roles",
-          "roles": ["student", "instructor", "admin"],
-          "disable_jwk_security": true
-        },
         "proxy": {
           "static": {
             "strategy": "always"
@@ -339,14 +327,8 @@
       "endpoint": "/api/courses",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
       "extra_config": {
-        "auth/validator": {
-          "alg": "RS256",
-          "jwk_url": "http://keycloak:8080/realms/education/protocol/openid-connect/certs",
-          "roles_key": "realm_access.roles",
-          "roles": ["student", "instructor", "admin"],
-          "disable_jwk_security": true
-        },
         "proxy": {
           "static": {
             "strategy": "always"
