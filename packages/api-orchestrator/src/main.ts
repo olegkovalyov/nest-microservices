@@ -11,18 +11,18 @@ import * as express from 'express';
 import {MicroserviceOptions, Transport} from '@nestjs/microservices';
 import {patchKafkaJsTimeouts} from './app/kafka/kafka.patch';
 
-// Глобальные обработчики ошибок
+// Global error handlers
 process.on('uncaughtException', (error) => {
   Logger.error(`Uncaught Exception: ${error.message}`, error.stack);
-  // В продакшене можно добавить отправку уведомления
+  // In production, notification delivery can be added here
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   Logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
-  // В продакшене можно добавить отправку уведомления
+  // In production, notification delivery can be added here
 });
 
-// Применяем патч для исправления проблемы с отрицательными таймаутами
+// Apply patch to fix the negative timeout issue in KafkaJS
 patchKafkaJsTimeouts();
 
 async function bootstrap() {
@@ -50,7 +50,7 @@ async function bootstrap() {
   }
 }
 
-// Запуск с обработкой ошибок
+// Run with error handling
 bootstrap().catch(err => {
   Logger.error(`❌ Fatal error during bootstrap: ${err.message}`, err.stack);
   process.exit(1);

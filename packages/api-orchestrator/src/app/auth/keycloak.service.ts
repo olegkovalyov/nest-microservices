@@ -1,8 +1,8 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import KeycloakConnect = require('keycloak-connect');
 import axios from 'axios';
 import * as qs from 'qs';
+import KeycloakConnect from 'keycloak-connect';
 
 interface TokenResponse {
   access_token: string;
@@ -14,17 +14,18 @@ interface TokenResponse {
 @Injectable()
 export class KeycloakService {
   private readonly logger = new Logger(KeycloakService.name);
-  private keycloak: KeycloakConnect.Keycloak;
+  private keycloak: any;
   private readonly keycloakUrl: string;
   private readonly realm: string;
   private readonly clientId: string;
-  private readonly clientSecret: string;
+  private readonly clientSecret: string | undefined;
 
   constructor(private configService: ConfigService) {
     this.keycloakUrl = this.configService.get<string>('KEYCLOAK_URL') || 'http://localhost:8080';
     this.realm = this.configService.get<string>('KEYCLOAK_REALM') || 'education';
     this.clientId = this.configService.get<string>('KEYCLOAK_CLIENT_ID') || 'postman-client';
-    this.clientSecret = this.configService.get<string>('KEYCLOAK_CLIENT_SECRET') || '';
+    this.clientSecret = this.configService.get<string>('KEYCLOAK_CLIENT_SECRET');
+    
     this.initializeKeycloak();
   }
 
@@ -34,70 +35,73 @@ export class KeycloakService {
       'auth-server-url': this.keycloakUrl,
       'ssl-required': 'external',
       resource: this.clientId,
-      'verify-token-audience': true,
-      credentials: {
-        secret: this.clientSecret,
-      },
       'confidential-port': 0,
-      'policy-enforcer': {},
+      'bearer-only': true,
     };
-
-    this.keycloak = new KeycloakConnect({}, keycloakConfig);
-    this.logger.log('Keycloak initialized successfully');
+    
+    const keycloakOptions = {
+      store: {
+        get: () => null,
+      },
+    };
+    
+    this.keycloak = new KeycloakConnect(keycloakOptions, keycloakConfig);
+    this.logger.log('Keycloak initialized');
   }
 
-  getKeycloakInstance(): KeycloakConnect.Keycloak {
+  getKeycloakInstance(): any {
     return this.keycloak;
   }
 
   async validateToken(token: string): Promise<boolean> {
     try {
-      if (!token) {
-        return false;
-      }
-      const result = await this.keycloak.grantManager.validateAccessToken(token);
-      return !!result; // Convert to boolean
+      this.logger.debug(`Validating token: ${token.substring(0, 10)}...`);
+      const response = await axios.get(
+        `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/userinfo`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      return response.status === 200;
     } catch (error) {
-      this.logger.error('Token validation failed:', error);
+      this.logger.error(`Token validation failed: ${error.message}`);
       return false;
     }
   }
 
   async getUserInfo(token: string): Promise<any> {
     try {
-      if (!token) {
-        throw new UnauthorizedException('No token provided');
-      }
-      const userInfo = await this.keycloak.grantManager.userInfo(token);
-      return userInfo;
+      const response = await axios.get(
+        `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/userinfo`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      return response.data;
     } catch (error) {
-      this.logger.error('Failed to get user info:', error);
-      throw error;
+      this.logger.error(`Failed to get user info: ${error.message}`);
+      throw new UnauthorizedException('Invalid token');
     }
   }
 
   async login(username: string, password: string): Promise<TokenResponse> {
     try {
-      this.logger.log(`Attempting login for user: ${username}`);
-      this.logger.log(`Using Keycloak URL: ${this.keycloakUrl}`);
-      this.logger.log(`Using Realm: ${this.realm}`);
-      this.logger.log(`Using Client ID: ${this.clientId}`);
-
+      this.logger.log(`Attempting to login user: ${username} with client ID: ${this.clientId}`);
+      
       const data: Record<string, string> = {
         grant_type: 'password',
         client_id: this.clientId,
         username,
         password,
       };
-
-      // If client_secret is provided, add it to the request
+      
       if (this.clientSecret) {
-        data['client_secret'] = this.clientSecret;
+        data.client_secret = this.clientSecret;
       }
+      
+      this.logger.log(`Sending login request to Keycloak with data: ${JSON.stringify(data, null, 2)}`);
+      this.logger.log(`Token endpoint: ${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`);
 
-      this.logger.log(`Sending request to Keycloak token endpoint with data: ${JSON.stringify(data, null, 2)}`);
-
-      this.logger.log(`${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token\``);
       const response = await axios.post(
         `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`,
         qs.stringify(data),
@@ -111,10 +115,10 @@ export class KeycloakService {
       this.logger.log('Login successful');
       return response.data;
     } catch (error) {
-      this.logger.error(`Login failed: ${error.message}`);
+      this.logger.error('Login failed:', error.response?.data || error.message);
       if (error.response) {
-        this.logger.error(`Error response: ${JSON.stringify(error.response.data)}`);
-        this.logger.error(`Status: ${error.response.status}`);
+        this.logger.error(`Error status: ${error.response.status}`);
+        this.logger.error(`Error data: ${JSON.stringify(error.response.data)}`);
       }
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -122,10 +126,6 @@ export class KeycloakService {
 
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
     try {
-      if (!refreshToken) {
-        throw new UnauthorizedException('No refresh token provided');
-      }
-
       this.logger.log(`Attempting to refresh token with client ID: ${this.clientId}`);
       
       const data: Record<string, string> = {
@@ -134,7 +134,7 @@ export class KeycloakService {
         refresh_token: refreshToken,
       };
 
-      // Добавляем client_secret только если он установлен
+      // Add client_secret only if it's set
       if (this.clientSecret) {
         data.client_secret = this.clientSecret;
       }
@@ -177,7 +177,7 @@ export class KeycloakService {
         refresh_token: refreshToken,
       };
 
-      // Добавляем client_secret только если он установлен
+      // Add client_secret only if it's set
       if (this.clientSecret) {
         data.client_secret = this.clientSecret;
       }

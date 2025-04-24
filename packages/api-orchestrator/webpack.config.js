@@ -5,13 +5,13 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = (config, context) => {
   const isDevelopment = process.env.NODE_ENV !== 'production';
 
-  // Базовая конфигурация
+  // Base configuration
   config.output = {
     ...config.output,
     path: join(__dirname, '../../dist/packages/api-orchestrator'),
   };
 
-  // Добавляем плагин NX
+  // Add NX plugin
   config.plugins = [
     ...(config.plugins || []),
     new NxAppWebpackPlugin({
@@ -26,17 +26,17 @@ module.exports = (config, context) => {
     }),
   ];
 
-  // Настройка для режима разработки
+  // Development mode settings
   if (isDevelopment) {
     config.mode = 'development';
     config.watch = true;
     config.watchOptions = {
-      poll: 1000, // Проверять изменения каждую секунду
+      poll: 1000, // Check for changes every second
       ignored: /node_modules/,
     };
   }
 
-  // Исключаем node_modules из сборки
+  // Exclude node_modules from build
   config.externals = [nodeExternals()];
 
   return config;

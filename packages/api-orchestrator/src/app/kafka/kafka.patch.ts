@@ -1,14 +1,14 @@
 /**
- * Этот патч исправляет проблему с отрицательными таймаутами в kafkajs
+ * This patch fixes the problem with negative timeouts in kafkajs
  */
 export function patchKafkaJsTimeouts() {
   try {
-    // Сохраняем оригинальную функцию setTimeout
+    // Save the original setTimeout function
     const originalSetTimeout = global.setTimeout;
     
-    // Переопределяем setTimeout, чтобы избежать отрицательных таймаутов
+    // Override setTimeout to avoid negative timeouts
     global.setTimeout = function patchedSetTimeout(callback: Function, ms?: number, ...args: any[]) {
-      // Если таймаут отрицательный, устанавливаем его в 0
+      // If timeout is negative, set it to 0
       if (ms !== undefined && ms < 0) {
         console.warn(`Fixed negative timeout value: ${ms} -> 0`);
         ms = 0;

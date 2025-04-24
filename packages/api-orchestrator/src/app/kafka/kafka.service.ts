@@ -20,15 +20,15 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka,
     private configService: ConfigService
   ) {
-    // Проверяем настройки Kafka
+    // Check Kafka settings
     const kafkaEnabled = this.configService.get('KAFKA_ENABLED');
     this.kafkaEnabled = kafkaEnabled !== 'false';
     
-    // Режим быстрой разработки - для ускорения запуска в dev-среде
+    // Fast dev mode - for quicker startup in development environment
     const fastDev = this.configService.get('KAFKA_FAST_DEV');
     this.kafkaFastDev = fastDev === 'true';
     
-    // Таймаут подключения из конфигурации или по умолчанию
+    // Connection timeout from configuration or default
     this.connectionTimeout = parseInt(this.configService.get('KAFKA_CONNECTION_TIMEOUT') || '10000', 10);
   }
 
@@ -40,7 +40,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      // Выводим конфигурацию Kafka для отладки
+      // Output Kafka configuration for debugging
       this.logger.log('Kafka configuration:', {
         brokers: this.configService.get('KAFKA_BROKERS'),
         groupId: this.configService.get('KAFKA_GROUP_ID'),
@@ -51,18 +51,18 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       
       this.logger.log('Initializing Kafka service...');
       
-      // Подписываемся на необходимые топики
+      // Subscribe to necessary topics
       this.kafkaClient.subscribeToResponseOf('user.created');
       this.kafkaClient.subscribeToResponseOf('user.updated');
       this.kafkaClient.subscribeToResponseOf('user.deleted');
       
       this.connectionAttempted = true;
       
-      // В режиме быстрой разработки симулируем подключение
+      // In fast dev mode, simulate connection
       if (this.kafkaFastDev) {
         this.logger.log('Running in FAST DEV mode. Kafka connection will be established in background.');
         
-        // Запускаем подключение в фоне, не дожидаясь результата
+        // Start connection in background without waiting for results
         this.connectPromise = this.connectWithTimeout();
         this.connectPromise.catch(error => {
           this.logger.error(`Background Kafka connection failed: ${error.message}`);
@@ -71,15 +71,15 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         return;
       }
       
-      // В обычном режиме - асинхронно подключаемся
+      // In normal mode - connect asynchronously
       this.connectPromise = this.connectWithRetry();
       
-      // Запускаем подключение в фоне, не ожидая завершения
+      // Start connection in background without waiting for completion
       this.connectPromise.catch(error => {
         this.logger.error(`Background Kafka connection failed: ${error.message}`);
       });
       
-      // Сразу возвращаем управление, не дожидаясь подключения
+      // Return control immediately without waiting for connection
       this.logger.log('Application will continue loading while Kafka connects in background...');
     } catch (error) {
       this.logger.error(`Failed to initialize Kafka client: ${error.message}`);
@@ -87,20 +87,20 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // Подключение с таймаутом для режима быстрой разработки
+  // Connection with timeout for fast dev mode
   private async connectWithTimeout(): Promise<void> {
     try {
-      // Создаем промис для подключения с таймаутом
+      // Create promise for connection with timeout
       const connectionPromise = this.kafkaClient.connect();
       
-      // Создаем промис для таймаута
+      // Create promise for timeout
       const timeoutPromise = new Promise<void>((_, reject) => {
         setTimeout(() => {
           reject(new Error(`Kafka connection timed out after ${this.connectionTimeout}ms`));
         }, this.connectionTimeout);
       });
       
-      // Используем Promise.race для ограничения времени подключения
+      // Use Promise.race to limit connection time
       await Promise.race([connectionPromise, timeoutPromise]);
       
       this.isConnected = true;
@@ -109,7 +109,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(`Fast dev Kafka connection failed: ${error.message}`);
       this.logger.warn('Application will continue without waiting for Kafka');
       
-      // Продолжаем подключение в фоне
+      // Continue connection in background
       this.kafkaClient.connect()
         .then(() => {
           this.isConnected = true;
@@ -155,7 +155,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // Этот метод можно использовать для ожидания подключения при необходимости
+  // This method can be used to wait for connection when needed
   async ensureConnected(): Promise<boolean> {
     if (this.isConnected) {
       return true;
@@ -179,9 +179,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       return null;
     }
     
-    // Проверяем подключение перед отправкой
+    // Check connection before sending
     if (!this.isConnected) {
-      // Пытаемся дождаться завершения фонового подключения
+      // Try to wait for the background connection to complete
       const connected = await this.ensureConnected();
       if (!connected) {
         this.logger.warn(`Cannot send message to topic ${topic} - Kafka is not connected`);
@@ -205,9 +205,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       return;
     }
     
-    // Проверяем подключение перед отправкой
+    // Check connection before sending
     if (!this.isConnected) {
-      // Пытаемся дождаться завершения фонового подключения
+      // Try to wait for the background connection to complete
       const connected = await this.ensureConnected();
       if (!connected) {
         this.logger.warn(`Cannot emit event to topic ${topic} - Kafka is not connected`);
