@@ -6,10 +6,8 @@ A microservices-based educational platform built with NestJS using modern techno
 
 ### Backend
 - **NestJS** - main microservices framework
-- **KeyCloak** - authentication and authorization
 - **Kafka** - message broker
 - **Stripe** - payment system
-- **KrakenD** - API Gateway
 - **PostgreSQL** - main database
 - **Redis** - caching
 
@@ -34,7 +32,7 @@ nest-microservices/
 ├── libs/
 │   ├── common/               # Common utilities and interfaces
 │   ├── kafka/               # Kafka configuration
-│   └── keycloak/           # KeyCloak integration
+
 └── docs/                    # Documentation
 ```
 

@@ -94,17 +94,11 @@ interface INotificationService {
 
 ## Security
 
-### KeyCloak
-- Centralized authentication
+### Auth0
+- Managed authentication and authorization
 - OAuth 2.0 / OpenID Connect
 - Roles and permissions
 - SSO
-
-### API Gateway (KrakenD)
-- Rate limiting
-- CORS
-- JWT validation
-- Logging
 
 ## Monitoring and Logging
 

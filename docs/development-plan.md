@@ -14,11 +14,11 @@
 - [ ] Set up networks and volumes
 - [ ] Configure environment variables
 
-### 1.3 KeyCloak Setup
-- [ ] Install and configure KeyCloak
-- [ ] Create realm and clients
+### 1.3 Auth0 Setup
+- [ ] Register Auth0 account
+- [ ] Create applications and APIs
 - [ ] Configure roles and permissions
-- [ ] Set up OIDC
+- [ ] Set up OAuth 2.0 / OIDC
 
 ### 1.4 Kafka Setup
 - [ ] Install and configure Kafka
@@ -36,7 +36,7 @@
 
 ### 2.1 Auth Service Implementation
 - [ ] Create basic service structure
-- [ ] Integrate with KeyCloak
+- [ ] Integrate with Auth0
 - [ ] Implement authentication endpoints
 - [ ] Implement authorization endpoints
 
@@ -57,7 +57,7 @@
 ### 3.2 User Service
 - [ ] Create basic structure
 - [ ] Implement user profiles
-- [ ] Integrate with KeyCloak
+- [ ] Integrate with Auth0
 - [ ] Configure validation
 
 ### 3.3 Progress Service
@@ -104,7 +104,7 @@
 
 ### 6.3 Backend Integration
 - [ ] Configure API client
-- [ ] Integrate with KeyCloak
+- [ ] Integrate with Auth0
 - [ ] Integrate with Stripe
 - [ ] Configure WebSocket
 

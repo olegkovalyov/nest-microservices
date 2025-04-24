@@ -1,5 +1,4 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { KeycloakService } from '../keycloak/keycloak.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../entities/user.entity';
@@ -8,25 +7,21 @@ import { User } from '../entities/user.entity';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(private readonly keycloakService: KeycloakService) {}
+  constructor() {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     this.logger.log(`Creating new user: ${createUserDto.username}`);
-    
-    const result = await this.keycloakService.createUser(createUserDto);
-    
-    // Получение созданного пользователя для возврата
-    const userInfo = await this.keycloakService.getUserByUsername(createUserDto.username);
-    
+    // TODO: Integrate with Auth0 for user creation
+    // Return a stub user for now
     return new User({
-      id: userInfo.id,
-      username: userInfo.username,
-      email: userInfo.email,
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      enabled: userInfo.enabled,
-      emailVerified: userInfo.emailVerified,
-      createdTimestamp: userInfo.createdTimestamp,
+      id: 'stub-id',
+      username: createUserDto.username,
+      email: createUserDto.email,
+      firstName: createUserDto.firstName,
+      lastName: createUserDto.lastName,
+      enabled: true,
+      emailVerified: false,
+      createdTimestamp: Date.now(),
     });
   }
 
