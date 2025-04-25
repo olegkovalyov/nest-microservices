@@ -1,23 +1,23 @@
 # User Service
 
-Микросервис для управления пользователями образовательной платформы. Реализован на NestJS с использованием gRPC, PostgreSQL (TypeORM), Kafka и Auth0.
+A microservice for managing users of an educational platform. Implemented with NestJS using gRPC, PostgreSQL (TypeORM), Kafka, and Auth0.
 
 ---
 
-## Структура проекта
+## Project Structure
 
 ```
 user-service/
   src/
     app/
       user/
-        user.controller.ts      # gRPC контроллер
-        user.service.ts         # Бизнес-логика (Auth0, БД, Kafka)
-        user.entity.ts          # TypeORM сущность пользователя
-        user.dto.ts             # DTO с валидацией
-        user.pb.ts              # Типы для gRPC
-      app.module.ts             # Главный модуль
-    main.ts                     # Точка входа
+        user.controller.ts      # gRPC controller
+        user.service.ts         # Business logic (Auth0, DB, Kafka)
+        user.entity.ts          # TypeORM user entity
+        user.dto.ts             # DTOs with validation
+        user.pb.ts              # Types for gRPC
+      app.module.ts             # Main module
+    main.ts                     # Entry point
   README.md
   project.json
   ...
@@ -25,17 +25,17 @@ user-service/
 
 ---
 
-## Основные технологии и интеграции
+## Main Technologies and Integrations
 - **NestJS** (gRPC microservice)
 - **TypeORM** (PostgreSQL)
 - **Kafka** (kafkajs)
 - **Auth0** (REST Management API)
-- **class-validator** (валидация DTO)
-- **@nestjs/config** (работа с .env)
+- **class-validator** (DTO validation)
+- **@nestjs/config** (environment variable management)
 
 ---
 
-## Переменные окружения (.env)
+## Environment Variables (.env)
 
 ```
 # PostgreSQL
@@ -59,40 +59,40 @@ GRPC_URL=0.0.0.0:5001
 
 ---
 
-## Запуск локально
+## Running Locally
 
-1. Установите зависимости:
+1. Install dependencies:
    ```bash
    npm install
    ```
-2. Создайте файл `.env` в корне user-service и заполните его по примеру выше.
-3. Запустите сервисы:
+2. Create a `.env` file in the root of user-service and fill it out as shown above.
+3. Start the services:
    ```bash
    npm run start:services
    ```
-   Это запустит user-service и api-orchestrator параллельно через NX.
+   This will launch both user-service and api-orchestrator in parallel via NX.
 
 ---
 
-## Основной flow
-- **CreateUser**: gRPC-запрос → создание пользователя в Auth0 → создание в БД (атомарно, с rollback) → публикация события USER_CREATED в Kafka
-- **GetUser**: gRPC-запрос → получение пользователя из БД
+## Main Flow
+- **CreateUser**: gRPC request → user creation in Auth0 → creation in DB (atomic, with rollback) → publishing USER_CREATED event to Kafka
+- **GetUser**: gRPC request → fetch user from DB
 
 ---
 
-## Контракты и документация
-- gRPC контракты: `docs/user-service-grpc.proto`
-- Flow и sequence diagram: `docs/user-service-flow.md`
+## Contracts and Documentation
+- gRPC contracts: `docs/user-service-grpc.proto`
+- Flow and sequence diagram: `docs/user-service-flow.md`
 
 ---
 
-## Тестирование
-- (Рекомендуется) покрыть сервисы unit и e2e тестами
-- Для тестов можно использовать встроенные средства NestJS и Jest
+## Testing
+- (Recommended) Cover services with unit and e2e tests
+- You can use built-in NestJS and Jest tools for testing
 
 ---
 
 ## TODO
-- Реализация дополнительных методов
-- Подключение Notification Service к Kafka
-- Продвинутые тесты и мониторинг
+- Implement additional methods
+- Connect Notification Service to Kafka
+- Advanced tests and monitoring
