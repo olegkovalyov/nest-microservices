@@ -15,36 +15,31 @@ import { KafkaService } from './kafka.service';
             client: {
               clientId: 'api-orchestrator-client',
               brokers: [configService.get('KAFKA_BROKERS') || 'localhost:9092'],
-              connectionTimeout: 10000,
-              requestTimeout: 30000,
+              connectionTimeout: 3000, // Reduced from 10000 to 3000
               retry: {
-                maxRetryTime: 30000,
-                initialRetryTime: 100,
-                retries: 5
+                initialRetryTime: 100, // Reduced from 300 to 100
+                retries: 3,           // Reduced from 5 to 3
+                maxRetryTime: 3000    // Maximum time between retries
               }
             },
             consumer: {
-              groupId: 'api-orchestrator-group-client',
-              retry: {
-                maxRetryTime: 30000,
-                initialRetryTime: 100,
-                retries: 5
-              },
-              maxWaitTimeInMs: 5000,
-              sessionTimeout: 30000
+              groupId: configService.get('KAFKA_GROUP_ID') || 'api-orchestrator-group-client',
+              sessionTimeout: 6000,   // Reduced from 30000 to 6000
+              heartbeatInterval: 2000, // Reduced from 5000 to 2000
+              maxWaitTimeInMs: 1000,  // Maximum wait time for receiving messages
+              allowAutoTopicCreation: true, // Allow automatic topic creation
+              maxBytes: 1048576,      // 1MB - limit data volume when receiving
+              rebalanceTimeout: 5000  // Reduce rebalancing time
             },
             producer: {
               allowAutoTopicCreation: true,
-              transactionTimeout: 30000,
-              maxOutgoingBatchSize: 100
+              transactionTimeout: 5000, // Added transaction timeout
+              idempotent: false        // Disable idempotency for better speed
             },
             run: {
-              autoCommit: true,
-              autoCommitInterval: 5000
-            },
-            send: {
-              timeout: 30000,
-              acks: 1
+              autoCommit: true,         // Automatic commit
+              autoCommitInterval: 100,  // Interval between commits
+              autoCommitThreshold: 100  // Number of messages between commits
             }
           },
         }),
@@ -55,4 +50,4 @@ import { KafkaService } from './kafka.service';
   providers: [KafkaService],
   exports: [KafkaService],
 })
-export class KafkaModule {} 
+export class KafkaModule {}

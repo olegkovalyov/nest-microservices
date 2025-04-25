@@ -3,10 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { KafkaModule } from './kafka/kafka.module';
-import { AuthModule } from './auth/keycloak.module';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/auth.guard';
 import { UserModule } from './users/user.module';
+import {AuthModule} from './auth/auth.module';
+import {AuthController} from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -14,17 +13,12 @@ import { UserModule } from './users/user.module';
       isGlobal: true,
     }),
     KafkaModule,
-    AuthModule,
     UserModule,
+    AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useFactory: (authGuard: AuthGuard) => authGuard,
-      inject: [AuthGuard],
-    },
   ],
 })
 export class AppModule {}

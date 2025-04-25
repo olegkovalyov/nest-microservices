@@ -36,7 +36,7 @@
       "options": {
         "buildTarget": "api-orchestrator:build",
         "watch": true,
-        "runtimeArgs": ["--inspect=0.0.0.0:9229", "--nolazy"]
+        "runtimeArgs": ["--inspect=0.0.0.0:9229", "--nolazy", "--trace-warnings"]
       },
       "configurations": {
         "development": {

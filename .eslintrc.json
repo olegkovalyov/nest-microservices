@@ -6,6 +6,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
+        "curly": ["error", "all"],
         "@nx/enforce-module-boundaries": [
           "error",
           {
