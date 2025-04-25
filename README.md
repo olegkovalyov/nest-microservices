@@ -6,6 +6,7 @@ A microservices-based educational platform built with NestJS using modern techno
 
 ### Backend
 - **NestJS** - main microservices framework
+- **Auth0** - auth provider
 - **Kafka** - message broker
 - **Stripe** - payment system
 - **PostgreSQL** - main database
@@ -21,19 +22,18 @@ A microservices-based educational platform built with NestJS using modern techno
 
 ```
 nest-microservices/
-├── apps/
-│   ├── api-gateway/           # KrakenD configuration
-│   ├── auth-service/          # KeyCloak integration
-│   ├── course-service/        # Course management
-│   ├── user-service/          # User management
-│   ├── payment-service/       # Stripe integration
-│   ├── notification-service/  # Notifications
-│   └── progress-service/      # Learning progress
+├── packages/
+│   ├── api-orchestrator/      # Основной API-шлюз (gRPC orchestrator)
+│   ├── user-service/          # Микросервис пользователей (NestJS, gRPC, Kafka, Auth0)
+│   ├── course-service/        # (Планируется) Управление курсами
+│   ├── payment-service/       # (Планируется) Платежи
+│   ├── notification-service/  # (Планируется) Уведомления
+│   ├── progress-service/      # (Планируется) Прогресс обучения
 ├── libs/
-│   ├── common/               # Common utilities and interfaces
-│   ├── kafka/               # Kafka configuration
+│   ├── common/                # Общие утилиты и интерфейсы
+│   ├── kafka/                 # Конфигурация и клиенты Kafka
+├── docs/                      # Документация, proto, схемы
 
-└── docs/                    # Documentation
 ```
 
 ## Documentation

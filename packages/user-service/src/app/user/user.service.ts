@@ -18,7 +18,7 @@ export class UserServiceService {
     private readonly configService: ConfigService,
   ) {
     // Init Kafka producer
-    const kafka = new Kafka({ brokers: [this.configService.get('KAFKA_BROKER')] });
+    const kafka = new Kafka({ brokers: [String(this.configService.get('KAFKA_BROKER'))] });
     this.producer = kafka.producer();
     this.producer.connect();
   }
@@ -52,7 +52,7 @@ export class UserServiceService {
     let user: User;
     try {
       user = this.userRepo.create({
-        id: auth0UserId,
+        id: String(auth0UserId),
         email: data.email,
         name: data.name,
         roles: ['user'],
