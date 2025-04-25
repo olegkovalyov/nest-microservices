@@ -8,8 +8,8 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app/app.module';
 import {ValidationPipe} from '@nestjs/common';
 import * as express from 'express';
-import {MicroserviceOptions, Transport} from '@nestjs/microservices';
 import {patchKafkaJsTimeouts} from './app/kafka/kafka.patch';
+import cookieParser from 'cookie-parser';
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -30,6 +30,8 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
       logger: ['log', 'error', 'warn', 'debug', 'verbose'],
     });
+
+    app.use(cookieParser());
 
     app.useGlobalPipes(new ValidationPipe({
       whitelist: true,

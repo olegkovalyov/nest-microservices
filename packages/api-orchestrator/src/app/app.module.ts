@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { KafkaModule } from './kafka/kafka.module';
 import { UserModule } from './users/user.module';
+import {AuthModule} from './auth/auth.module';
+import {AuthController} from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -12,8 +14,9 @@ import { UserModule } from './users/user.module';
     }),
     KafkaModule,
     UserModule,
+    AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [
     AppService,
   ],

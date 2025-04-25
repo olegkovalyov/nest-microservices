@@ -4,6 +4,8 @@
 
 The educational platform is a microservices architecture built with NestJS. The system consists of several independent services that communicate through an API Gateway and message broker.
 
+> **Note:** The single entry point for the application is the `api-orchestrator` service, which acts as the unified API gateway for all clients.
+
 ## Architectural Decisions
 
 ### 1. Monorepo
@@ -17,7 +19,7 @@ The choice of a monorepo is based on the following factors:
 ### 2. Microservices Architecture
 
 Each service is responsible for a specific business function:
-- Auth Service - authentication and authorization
+- Api Orchestrator Service - authentication, authorization, routing
 - Course Service - course management
 - User Service - user management
 - Payment Service - payments
@@ -27,7 +29,6 @@ Each service is responsible for a specific business function:
 ### 3. Service Communication
 
 #### Synchronous Communication
-- REST API through KrakenD
 - gRPC for internal communication
 
 #### Asynchronous Communication
@@ -36,14 +37,76 @@ Each service is responsible for a specific business function:
 
 ## Service Details
 
-### Auth Service
+### Authentication & Authorization (via Auth0)
+
+Authentication and authorization are managed by **Auth0** (cloud-based IdP). All authentication and validation are handled in the `api-orchestrator` service, which integrates with Auth0 via OIDC/JWT.
+
+#### Auth API Endpoints
+
+| Method | Path                   | Description                       |
+|--------|------------------------|-----------------------------------|
+| POST   | /api/v1/auth/login     | Получение токенов (access/refresh)|
+| POST   | /api/v1/auth/refresh   | Получение нового access токена    |
+| POST   | /api/v1/auth/logout    | Разлогинивание пользователя       |
+| GET    | /api/v1/auth/me        | Получение информации о пользователе (protected) |
+
+##### Примеры запросов и ответов
+
+**POST /api/v1/auth/login**
+```json
+{
+  "username": "user@example.com",
+  "password": "password"
+}
+```
+Ответ:
+```json
+{
+  "access_token": "...",
+  "refresh_token": "...",
+  "id_token": "...",
+  "expires_in": 86400,
+  "token_type": "Bearer"
+}
+```
+
+**POST /api/v1/auth/refresh**
+```json
+{
+  "refresh_token": "..."
+}
+```
+Ответ:
+```json
+{
+  "access_token": "...",
+  "expires_in": 86400,
+  "token_type": "Bearer"
+}
+```
+
+**POST /api/v1/auth/logout**
+- Без тела запроса. Делает redirect на logout страницу Auth0.
+
+**GET /api/v1/auth/me**
+- Требует заголовок Authorization: Bearer <access_token>
+Ответ:
+```json
+{
+  "id": "user-id",
+  "email": "user@example.com",
+  "name": "Test User",
+  "roles": ["user"]
+}
+```
 
 ```typescript
 interface IAuthService {
   login(credentials: LoginDto): Promise<TokenResponse>;
-  register(userData: RegisterDto): Promise<User>;
-  validateToken(token: string): Promise<UserPayload>;
   refreshToken(token: string): Promise<TokenResponse>;
+  validateToken(token: string): Promise<UserPayload>;
+  getProfile(token: string): Promise<UserProfile>;
+  logout(token: string): Promise<void>;
 }
 ```
 
@@ -95,7 +158,11 @@ interface INotificationService {
 ## Security
 
 ### Auth0
-- Managed authentication and authorization
+- Cloud-based authentication and authorization provider
+- OAuth 2.0 / OpenID Connect
+- JWT validation in api-orchestrator
+- Centralized authentication, authorization, and user management
+
 - OAuth 2.0 / OpenID Connect
 - Roles and permissions
 - SSO

@@ -1,5 +1,7 @@
 # Educational Platform Development Plan
 
+> **Note:** The project uses **Auth0** as the authentication and authorization provider. The single entry point for the application is the `api-orchestrator` service, which acts as the unified API gateway for all clients.
+
 ## Phase 1: Basic Infrastructure (1-2 weeks)
 
 ### 1.1 Monorepo Setup
@@ -14,9 +16,9 @@
 - [ ] Set up networks and volumes
 - [ ] Configure environment variables
 
-### 1.3 Auth0 Setup
-- [ ] Register Auth0 account
-- [ ] Create applications and APIs
+### 1.3 Authentik Setup
+- [ ] Deploy Authentik instance
+- [ ] Create applications and APIs in Authentik
 - [ ] Configure roles and permissions
 - [ ] Set up OAuth 2.0 / OIDC
 
@@ -26,19 +28,13 @@
 - [ ] Configure replication
 - [ ] Set up monitoring
 
-### 1.5 API Gateway Setup
-- [ ] Install and configure KrakenD
-- [ ] Configure routing
-- [ ] Set up authentication
-- [ ] Configure rate limiting
-
 ## Phase 2: Authentication and Authorization (1 week)
 
 ### 2.1 Auth Service Implementation
 - [ ] Create basic service structure
-- [ ] Integrate with Auth0
-- [ ] Implement authentication endpoints
-- [ ] Implement authorization endpoints
+- [ ] Integrate with Auth0 (cloud IdP)
+- [ ] Implement authentication endpoints (login, refresh, logout, me)
+- [ ] Implement authorization guards using Auth0 JWT
 
 ### 2.2 Security Configuration
 - [ ] Configure JWT
@@ -57,7 +53,7 @@
 ### 3.2 User Service
 - [ ] Create basic structure
 - [ ] Implement user profiles
-- [ ] Integrate with Auth0
+- [ ] Integrate with Auth0 for user info
 - [ ] Configure validation
 
 ### 3.3 Progress Service
