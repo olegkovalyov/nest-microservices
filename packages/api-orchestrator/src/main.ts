@@ -23,7 +23,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Apply patch to fix the negative timeout issue in KafkaJS
-patchKafkaJsTimeouts();
+// patchKafkaJsTimeouts();
 
 async function bootstrap() {
   try {
