@@ -1,9 +1,7 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { KafkaModule } from './kafka/kafka.module';
-import { UserModule } from './users/user.module';
+import {Module} from '@nestjs/common';
+import {ConfigModule} from '@nestjs/config';
+import {KafkaModule} from './kafka/kafka.module';
+import {UserModule} from './users/user.module';
 import {AuthModule} from './auth/auth.module';
 import {AuthController} from './auth/auth.controller';
 
@@ -16,9 +14,8 @@ import {AuthController} from './auth/auth.controller';
     UserModule,
     AuthModule,
   ],
-  controllers: [AppController, AuthController],
-  providers: [
-    AppService,
-  ],
+  controllers: [AuthController],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule {
+}

@@ -81,6 +81,7 @@ services:
       - microservices-network
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/init-user-service-db.sh:/docker-entrypoint-initdb.d/init-user-service-db.sh:ro
 
   mongodb:
     image: mongo:6

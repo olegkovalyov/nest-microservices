@@ -1,18 +1,19 @@
-import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { AppModule } from './app/app.module';
-import { join } from 'path';
+import {NestFactory} from '@nestjs/core';
+import {MicroserviceOptions, Transport} from '@nestjs/microservices';
+import {resolve} from 'path';
+import {UserModule} from './app/user/user.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(UserModule, {
     transport: Transport.GRPC,
     options: {
+      url: '0.0.0.0:5001', // порт для gRPC
       package: 'user',
-      protoPath: join(__dirname, '../user-service-grpc.proto'),
-      url: process.env.GRPC_URL || '0.0.0.0:5001',
+      protoPath: resolve(process.cwd(), 'proto-contracts/user-service.proto'),
     },
   });
   await app.listen();
+  console.log('User gRPC microservice is running');
 }
 
 bootstrap();

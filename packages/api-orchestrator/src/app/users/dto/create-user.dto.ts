@@ -16,24 +16,3 @@ export class CreateUserDto {
   @IsNotEmpty()
   lastName: string;
 }
-
-export class UpdateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
-  @IsEmail()
-  email?: string;
-
-  @IsString()
-  firstName?: string;
-
-  @IsString()
-  lastName?: string;
-}
-
-export class GetUserDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-}
