@@ -3,12 +3,10 @@
  * This is only a minimal backend to get started.
  */
 
-import {Logger} from '@nestjs/common';
-import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app/app.module';
-import {ValidationPipe} from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app/app.module';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import * as express from 'express';
-import {patchKafkaJsTimeouts} from './app/kafka/kafka.patch';
 import cookieParser from 'cookie-parser';
 
 // Global error handlers
@@ -22,13 +20,10 @@ process.on('unhandledRejection', (reason, promise) => {
   // In production, notification delivery can be added here
 });
 
-// Apply patch to fix the negative timeout issue in KafkaJS
-// patchKafkaJsTimeouts();
-
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+      logger: ['log', 'error', 'warn', 'debug', 'verbose'], 
     });
 
     app.use(cookieParser());
@@ -46,8 +41,12 @@ async function bootstrap() {
     const port = process.env.API_ORCHESTRATOR_PORT || 3000;
     await app.listen(port);
     Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
-  } catch (error) {
-    Logger.error(`❌ Error starting server: ${error.message}`, error.stack);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      Logger.error(`❌ Error starting server: ${error.message}`, error.stack);
+    } else {
+      Logger.error(`❌ Error starting server: ${JSON.stringify(error)}`);
+    }
     process.exit(1);
   }
 }
