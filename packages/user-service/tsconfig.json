@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc/user-service", // Уникальный outDir для пакета
+    "composite": true,
+    "declaration": true,                   
+    "declarationMap": true,                
+    "sourceMap": true                      
+  },
+  "references": [
+    {
+      "path": "../common"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "../common" // Ссылка на common
+    }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}

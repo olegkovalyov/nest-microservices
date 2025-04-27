@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import {UserService} from './user/user.service';
-import {UserController} from './user/user.controller';
+import {Module} from '@nestjs/common';
+import {ConfigModule, ConfigService} from '@nestjs/config';
+import {TypeOrmModule} from '@nestjs/typeorm';
 import {User} from './user/user.entity';
+import {RedisModule} from './redis.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({isGlobal: true}),
+    RedisModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -19,12 +20,13 @@ import {User} from './user/user.entity';
         password: config.get('POSTGRES_PASSWORD'),
         database: config.get('POSTGRES_DB'),
         entities: [User],
-        synchronize: true, // For dev only!
+        synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([User]),
+    UserModule,
   ],
-  controllers: [UserController],
+  controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+}

@@ -1,10 +1,17 @@
 import {NestFactory} from '@nestjs/core';
 import {MicroserviceOptions, Transport} from '@nestjs/microservices';
 import {resolve} from 'path';
-import {UserModule} from './app/user/user.module';
+import {AppModule} from './app/app.module';
+
+process.on('warning', (warning) => {
+  if (warning.name === 'TimeoutNegativeWarning') {
+    console.log('warning');
+    return;
+  }
+});
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(UserModule, {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.GRPC,
     options: {
       url: '0.0.0.0:5001', // порт для gRPC

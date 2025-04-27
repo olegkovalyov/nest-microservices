@@ -9,40 +9,28 @@ import { KafkaService } from './kafka.service';
       {
         name: 'KAFKA_SERVICE',
         imports: [ConfigModule],
-        useFactory: async (configService: ConfigService) => ({
-          transport: Transport.KAFKA,
-          options: {
-            client: {
-              clientId: 'api-orchestrator-client',
-              brokers: [configService.get('KAFKA_BROKERS') || 'localhost:9092'],
-              connectionTimeout: 3000, // Reduced from 10000 to 3000
-              retry: {
-                initialRetryTime: 100, // Reduced from 300 to 100
-                retries: 3,           // Reduced from 5 to 3
-                maxRetryTime: 3000    // Maximum time between retries
-              }
+        useFactory: async (configService: ConfigService) => {
+          const brokersString = configService.get<string>('KAFKA_BROKERS', 'localhost:9092');
+          const brokers = brokersString.split(',').map(broker => broker.trim());
+          console.log(`KAFKA_BROKERS string from env: "${brokersString}"`);
+          console.log('Parsed KAFKA_BROKERS for KafkaModule:', brokers);
+          return {
+            transport: Transport.KAFKA,
+            options: {
+              client: {
+                clientId: 'api-orchestrator-client',
+                brokers: brokers,
+                connectionTimeout: 3000,
+                requestTimeout: 3000,
+              },
+              consumer: {
+                groupId: configService.get<string>('KAFKA_GROUP_ID', 'api-orchestrator-group-client'),
+                maxBytes: 1048576,
+              },
+              producer: {},
             },
-            consumer: {
-              groupId: configService.get('KAFKA_GROUP_ID') || 'api-orchestrator-group-client',
-              sessionTimeout: 6000,   // Reduced from 30000 to 6000
-              heartbeatInterval: 2000, // Reduced from 5000 to 2000
-              maxWaitTimeInMs: 1000,  // Maximum wait time for receiving messages
-              allowAutoTopicCreation: true, // Allow automatic topic creation
-              maxBytes: 1048576,      // 1MB - limit data volume when receiving
-              rebalanceTimeout: 5000  // Reduce rebalancing time
-            },
-            producer: {
-              allowAutoTopicCreation: true,
-              transactionTimeout: 5000, // Added transaction timeout
-              idempotent: false        // Disable idempotency for better speed
-            },
-            run: {
-              autoCommit: true,         // Automatic commit
-              autoCommitInterval: 100,  // Interval between commits
-              autoCommitThreshold: 100  // Number of messages between commits
-            }
-          },
-        }),
+          };
+        },
         inject: [ConfigService],
       },
     ]),
