@@ -1,12 +1,13 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import { userGrpcClientOptions } from '../../user-grpc.options';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
+import { CreateUserRequest, GetUserRequest, UpdateUserRequest, UserResponse } from '@app/common/grpc/user/user-service';
 
 interface UserServiceGrpc {
-  CreateUser(data: any): Observable<any>;
-  GetUser(data: { id: string }): Observable<any>;
-  UpdateUser(data: any): Observable<any>;
+  CreateUser(data: CreateUserRequest): Observable<UserResponse>;
+  GetUser(data: GetUserRequest): Observable<UserResponse>;
+  UpdateUser(data: UpdateUserRequest): Observable<UserResponse>;
 }
 
 @Injectable()
@@ -18,15 +19,16 @@ export class UserGrpcClientService implements OnModuleInit {
     this.userService = this.client.getService<UserServiceGrpc>('UserService');
   }
 
-  createUser(data: any) {
-    return this.userService.CreateUser(data).toPromise();
+  async createUser(data: CreateUserRequest): Promise<UserResponse> {
+    return firstValueFrom(this.userService.CreateUser(data));
   }
 
-  getUser(id: string) {
-    return this.userService.GetUser({ id }).toPromise();
+  async getUser(id: string): Promise<UserResponse> {
+    const request: GetUserRequest = { id };
+    return firstValueFrom(this.userService.GetUser(request));
   }
 
-  updateUser(data: any) {
-    return this.userService.UpdateUser(data).toPromise();
+  async updateUser(data: UpdateUserRequest): Promise<UserResponse> {
+    return firstValueFrom(this.userService.UpdateUser(data));
   }
 }

@@ -21,7 +21,7 @@
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "inspect": true
+          "inspect": false
         },
         "production": {
           "optimization": true,

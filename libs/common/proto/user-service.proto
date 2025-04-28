@@ -30,7 +30,7 @@ message UserResponse {
 
 message UpdateUserRequest {
   string id = 1;
-  string email = 2;
-  string firstName = 3;
-  string lastName = 4;
+  optional string email = 2; // Make email optional
+  optional string firstName = 3; // Also make these optional, as per UpdateUserDto
+  optional string lastName = 4;  // Also make these optional, as per UpdateUserDto
 }

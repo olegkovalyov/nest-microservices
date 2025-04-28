@@ -8,11 +8,13 @@
     "lint": "nx run-many --target=lint --all",
     "e2e": "nx run-many --target=e2e --all",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "start:services": "nx run-many --target=serve --projects=api-orchestrator,user-service --parallel"
+    "start:services": "nx run-many --target=serve --projects=api-orchestrator,user-service --parallel",
+    "proto:generate": "bash scripts/generate-proto.sh"
   },
   "private": true,
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.1.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.0",
@@ -24,7 +26,7 @@
     "@nestjs/testing": "^11.1.0",
     "@nestjs/typeorm": "^11.0.0",
     "@protobuf-ts/grpc-transport": "^2.9.6",
-    "axios": "1.9.0",
+    "axios": "^1.9.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
@@ -41,6 +43,7 @@
     "typeorm": "^0.3.22"
   },
   "devDependencies": {
+    "@grpc/proto-loader": "^0.7.15",
     "@nx/eslint": "^20.8.0",
     "@nx/eslint-plugin": "^20.8.1",
     "@nx/jest": "^20.8.0",
@@ -67,6 +70,7 @@
     "prettier": "^3.2.5",
     "protobufjs": "^7.5.0",
     "ts-proto": "^2.7.0",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.3.3",
     "webpack": "^5.99.6",
     "webpack-cli": "^6.0.1",

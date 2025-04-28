@@ -2,9 +2,7 @@ import {Controller, Post, Body, UseGuards, Req, Get, UnauthorizedException, Res}
 import {AuthService} from './auth.service';
 import {AuthGuard} from './auth.guard';
 import {LoginDto} from './dto/login.dto';
-import {LogoutDto} from './dto/logout.dto';
-import {Result} from '@app/common/result';
-import {Request} from 'express';
+import {Request, Response} from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -12,7 +10,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.login(dto);
     if (!result.success) {
       throw new UnauthorizedException(result.error.message);
@@ -29,7 +27,7 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Req() req: any, @Res({ passthrough: true }) res: any) {
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token');
@@ -52,7 +50,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req: any, @Res({ passthrough: true }) res: any) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token');
