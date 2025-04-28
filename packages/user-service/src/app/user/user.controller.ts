@@ -11,7 +11,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto'; // Import UpdateUserDto
 import { RpcException } from '@nestjs/microservices'; // Import RpcException
 import { status } from '@grpc/grpc-js'; // Import gRPC status codes
-import { UserDto } from './dto/user.dto';
 
 @Controller()
 export class UserController {

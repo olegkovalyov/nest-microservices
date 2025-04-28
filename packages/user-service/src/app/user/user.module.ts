@@ -8,6 +8,7 @@ import {Auth0UserService} from '../auth/auth0-user.service';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {HttpModule} from '@nestjs/axios';
 import {User} from './user.entity';
+import { UserPersistenceService } from './services/user-persistence.service';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import {User} from './user.entity';
   providers: [
     UserService,
     Auth0MgmtTokenService,
-    Auth0UserService
+    Auth0UserService,
+    UserPersistenceService,
   ],
   exports: [
     UserService,
