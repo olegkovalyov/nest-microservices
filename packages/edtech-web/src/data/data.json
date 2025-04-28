@@ -1,0 +1,29 @@
+[
+  {
+    "id": "react-basics",
+    "title": "React Basics",
+    "imageUrl": "/images/course1.png",
+    "shortDescription": "Master the fundamentals of React and build dynamic user interfaces.",
+    "price14Days": 9.99,
+    "priceMonthly": 14.99,
+    "fullDescription": "Dive deep into React concepts such as components, state, props, hooks (useState, useEffect), and basic routing. Learn how to structure React applications effectively and manage component lifecycle. This course is perfect for beginners looking to start with one of the most popular front-end libraries."
+  },
+  {
+    "id": "angular-fundamentals",
+    "title": "Angular Fundamentals",
+    "imageUrl": "/images/course2.png",
+    "shortDescription": "Learn the core concepts of the Angular framework for robust applications.",
+    "price14Days": 10.99,
+    "priceMonthly": 16.99,
+    "fullDescription": "Explore the powerful features of Angular including modules, components, services, dependency injection, templates, data binding, and routing. Understand TypeScript's role in Angular development and build scalable single-page applications. Ideal for developers aiming for enterprise-level projects."
+  },
+  {
+    "id": "vue-introduction",
+    "title": "Vue.js Introduction",
+    "imageUrl": "/images/course3.png",
+    "shortDescription": "Get started with Vue.js, the progressive JavaScript framework.",
+    "price14Days": 8.99,
+    "priceMonthly": 13.99,
+    "fullDescription": "Discover the simplicity and flexibility of Vue.js. This course covers Vue instances, template syntax, components, reactivity, transitions, and the Vue Router. Learn to build interactive and performant front-end applications quickly. Great for those seeking an approachable yet powerful framework."
+  }
+]
