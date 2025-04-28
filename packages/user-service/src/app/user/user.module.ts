@@ -6,6 +6,7 @@ import {RedisModule} from '../redis.module';
 import {ConfigModule} from '@nestjs/config';
 import {Auth0UserService} from '../auth/auth0-user.service';
 import {TypeOrmModule} from '@nestjs/typeorm';
+import {HttpModule} from '@nestjs/axios';
 import {User} from './user.entity';
 
 @Module({
@@ -13,6 +14,7 @@ import {User} from './user.entity';
     ConfigModule,
     RedisModule,
     TypeOrmModule.forFeature([User]),
+    HttpModule,
   ],
   controllers: [UserController],
   providers: [
@@ -28,4 +30,3 @@ import {User} from './user.entity';
 })
 export class UserModule {
 }
-

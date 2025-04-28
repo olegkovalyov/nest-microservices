@@ -53,4 +53,11 @@ export class UserDto {
   })
   @IsDateString()
   updatedAt!: Date;
+
+  @ApiProperty({
+    description: 'Auth0 identifier of the user',
+    example: 'auth0|1234567890',
+  })
+  @IsString()
+  auth0Id?: string;
 }

@@ -1,6 +1,6 @@
 import {NestFactory} from '@nestjs/core';
 import {MicroserviceOptions, Transport} from '@nestjs/microservices';
-import {resolve} from 'path';
+import {join} from 'path';
 import {AppModule} from './app/app.module';
 
 process.on('warning', (warning) => {
@@ -16,7 +16,7 @@ async function bootstrap() {
     options: {
       url: '0.0.0.0:5001', // порт для gRPC
       package: 'user',
-      protoPath: resolve(process.cwd(), 'proto-contracts/user-service.proto'),
+      protoPath: join(process.cwd(), 'libs/common/proto/user-service.proto'),
     },
   });
   await app.listen();

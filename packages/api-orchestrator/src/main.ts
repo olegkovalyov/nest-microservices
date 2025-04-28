@@ -8,6 +8,7 @@ import { AppModule } from './app/app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import * as express from 'express';
 import cookieParser from 'cookie-parser';
+import { GrpcExceptionFilter } from './common/filters/grpc-exception.filter';
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -23,7 +24,7 @@ process.on('unhandledRejection', (reason, promise) => {
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug', 'verbose'], 
+      logger: ['log', 'error', 'warn', 'debug', 'verbose'],
     });
 
     app.use(cookieParser());
@@ -33,6 +34,7 @@ async function bootstrap() {
       transform: true,
       forbidNonWhitelisted: true,
     }));
+    app.useGlobalFilters(new GrpcExceptionFilter());
     app.enableCors();
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));

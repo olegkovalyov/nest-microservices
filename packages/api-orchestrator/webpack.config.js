@@ -26,12 +26,18 @@ module.exports = (config, context) => {
     }),
   ];
 
+  // Resolve extensions and paths
+  config.resolve = {
+    ...(config.resolve || {}),
+    extensions: [...(config.resolve?.extensions || []), '.ts', '.js'],
+  };
+
   // Development mode settings
   if (isDevelopment) {
     config.mode = 'development';
     config.watch = true;
     config.watchOptions = {
-      poll: 1000, // Check for changes every second
+      poll: 1000,
       ignored: /node_modules/,
     };
   }

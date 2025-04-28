@@ -10,6 +10,8 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto'; // Import UpdateUserDto
 import { RpcException } from '@nestjs/microservices'; // Import RpcException
+import { status } from '@grpc/grpc-js'; // Import gRPC status codes
+import { UserDto } from './dto/user.dto';
 
 @Controller()
 export class UserController {
@@ -46,44 +48,71 @@ export class UserController {
         createdAt: userDto.createdAt.toISOString(), // Convert Date to ISO string
       };
     } else {
-      // 5. Handle failure - Log and throw RpcException
+      // Handle errors returned from UserService
       const error = result.error;
-      this.logger.error(
-        `CreateUser failed for email ${request.email}: ${error.message}`,
-        error.stack, // Log the main error stack
-      );
-      // Provide a user-friendly error message via RpcException
-      throw new RpcException(
-        error.message || 'Failed to create user due to an internal error.', // Use specific or generic message
-      );
+
+      let grpcStatus = status.INTERNAL;
+      const errorMessage = error.message || 'Unknown error during user creation.';
+
+      // Check if the error message indicates a conflict (e.g., from Auth0)
+      if (errorMessage.toLowerCase().includes('conflict')) {
+        grpcStatus = status.ALREADY_EXISTS;
+        // Log conflict only at debug level as it's handled gracefully
+        this.logger.debug(`Conflict detected during user creation: ${errorMessage}`);
+      } else {
+        // Log only unexpected errors at the error level
+        this.logger.error(`Unexpected error during user creation: ${errorMessage}`, error.stack);
+      }
+
+      // Throw RpcException with the determined status and the original error message
+      throw new RpcException({
+        message: errorMessage + 'test',
+        code: grpcStatus,
+      });
     }
   }
 
   @GrpcMethod('UserService', 'GetUser')
   async getUser(request: GetUserRequest): Promise<UserResponse> {
-    this.logger.log(`Received GetUser request for id: ${request.id}`);
+    this.logger.log(`Received GetUser request for ID: ${request.id}`);
+
     const result = await this.userService.getUser(request.id);
 
     if (result.success) {
       const userDto = result.value;
+      this.logger.log(`Successfully retrieved user: ${userDto.email}`);
       // Map DTO to gRPC Response
-      return {
+      const userResponse: UserResponse = {
         id: userDto.id,
         email: userDto.email,
         firstName: userDto.firstName,
         lastName: userDto.lastName,
         roles: userDto.roles,
-        createdAt: userDto.createdAt.toISOString(),
+        createdAt: userDto.createdAt.toISOString(), // Convert Date to ISO string
       };
+      return userResponse;
     } else {
+      // Handle errors
       const error = result.error;
-      this.logger.error(
-        `GetUser failed for id ${request.id}: ${error.message}`,
-        error.stack, // Log the main error stack
-      );
-      throw new RpcException(
-        error.message || 'Failed to get user due to an internal error.',
-      );
+      const errorMessage = error.message || 'Unknown error during user retrieval.';
+      let grpcStatus = status.INTERNAL;
+
+      // Check specifically for 'not found' errors
+      if (errorMessage.toLowerCase().includes('not found')) {
+        grpcStatus = status.NOT_FOUND;
+        this.logger.warn(`User not found for ID ${request.id}: ${errorMessage}`);
+      } else {
+        // Log other internal errors
+        this.logger.error(
+          `Error retrieving user with ID ${request.id}: ${errorMessage}`,
+          error.stack,
+        );
+      }
+
+      throw new RpcException({
+        message: errorMessage,
+        code: grpcStatus,
+      });
     }
   }
 
@@ -125,9 +154,12 @@ export class UserController {
         `UpdateUser failed for id ${request.id}: ${error.message}`,
         error.stack, // Log the main error stack
       );
-      throw new RpcException(
-        error.message || 'Failed to update user due to an internal error.',
-      );
+      // TODO: Implement specific error mapping for UpdateUser if needed (e.g., NOT_FOUND, ALREADY_EXISTS for email change?)
+      // For now, treat all errors as internal
+      throw new RpcException({
+        message: error.message || 'Failed to update user due to an internal error.',
+        code: status.INTERNAL,
+      });
     }
   }
 }
