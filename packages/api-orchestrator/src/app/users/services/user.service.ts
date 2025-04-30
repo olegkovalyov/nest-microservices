@@ -1,18 +1,29 @@
-import {Injectable, Logger} from '@nestjs/common';
-import {UserGrpcClientService} from './user.grpc-client';
+import {Injectable, Logger, Inject, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { ClientKafka, RpcException } from '@nestjs/microservices'; 
+import { UserGrpcClientService } from './user.grpc-client';
 import { CreateUserRequest, UpdateUserRequest, UserResponse, GetUserRequest } from '@app/common/grpc/user/user-service';
-import {CreateUserDto} from '../dto/create-user.dto';
-import {UpdateUserDto} from '../dto/update-user.dto';
-import {RpcException} from '@nestjs/microservices';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
     private readonly userGrpcClient: UserGrpcClientService,
-  ) {
+    @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka,
+  ) {}
+
+  async onModuleInit() {
+    await this.kafkaClient.connect();
+    this.logger.log('Kafka client connected');
   }
+
+  async onModuleDestroy() {
+    await this.kafkaClient.close();
+    this.logger.log('Kafka client disconnected');
+  }
+
 
   /**
    * gRPC: Create user via user-service
@@ -27,17 +38,34 @@ export class UserService {
         lastName: userDto.lastName,
       };
       const user: UserResponse = await this.userGrpcClient.createUser(grpcPayload);
+
+      if (user && user.id) {
+        this.logger.log(`User created successfully with ID: ${user.id}. Emitting Kafka event.`);
+        this.kafkaClient.emit(
+          'user_created', 
+          { 
+            key: user.id, 
+            value: user,  
+          }
+        );
+         this.logger.log(`Kafka event 'user_created' emitted for user ID: ${user.id}`);
+      } else {
+         this.logger.warn('User created via gRPC but response missing ID. Cannot emit Kafka event.');
+      }
+
       return user;
     } catch (error) {
-      this.logger.error('Error creating user via gRPC:', error);
+      this.logger.error('Error creating user:', error); 
 
-      if ((error as any)?.code !== undefined) {
+      if ((error as any)?.code !== undefined && typeof (error as any).code === 'number' ) { 
         throw new RpcException({
           code: (error as any).code,
           message: (error as any).details || (error as any).message
         });
+      } else if (error instanceof RpcException) { 
+         throw error;
       }
-      throw new RpcException({ code: 500, message: 'Internal server error during user creation' });
+      throw new RpcException({ code: 500, message: 'Internal server error during user creation process' }); 
     }
   }
 
@@ -51,11 +79,13 @@ export class UserService {
       return user;
     } catch (error) {
       this.logger.error(`Error getting user ${userId} via gRPC:`, error);
-      if ((error as any)?.code !== undefined) {
+      if ((error as any)?.code !== undefined && typeof (error as any).code === 'number') {
         throw new RpcException({
           code: (error as any).code,
           message: (error as any).details || (error as any).message
         });
+      } else if (error instanceof RpcException) {
+         throw error;
       }
       throw new RpcException({ code: 500, message: 'Internal server error while getting user' });
     }
@@ -76,11 +106,13 @@ export class UserService {
       return user;
     } catch (error) {
       this.logger.error(`Error updating user ${id} via gRPC:`, error);
-       if ((error as any)?.code !== undefined) {
+       if ((error as any)?.code !== undefined && typeof (error as any).code === 'number') {
         throw new RpcException({
           code: (error as any).code,
           message: (error as any).details || (error as any).message
         });
+      } else if (error instanceof RpcException) {
+         throw error;
       }
       throw new RpcException({ code: 500, message: 'Internal server error during user update' });
     }
