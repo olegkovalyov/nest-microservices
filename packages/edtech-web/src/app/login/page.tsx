@@ -6,6 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import {
   Card,
@@ -30,7 +33,7 @@ import { Button } from '@/components/ui/button';
 // 1. Define the validation schema using Zod
 const loginFormSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(1, { message: 'Password is required.' }), // Min 1 char for login
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 // Infer the TypeScript type from the schema
@@ -43,6 +46,10 @@ const defaultValues: Partial<LoginFormValues> = {
 };
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   // 2. Define the form using react-hook-form
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -50,15 +57,43 @@ export default function LoginPage() {
     mode: 'onChange', // Validate on change
   });
 
-  // 3. Define a submit handler (placeholder)
-  function onSubmit(values: LoginFormValues) {
-    // IMPORTANT: Replace with your actual login logic (e.g., API call)
-    console.log('Login Form Submitted:', values);
-    // Simulate API call
-    alert(`Login submitted!\nCheck console for details.`);
-    // Reset form or redirect user after successful login
-    // form.reset(); 
-    // For example, redirect to dashboard: router.push('/dashboard');
+  // 3. Define a submit handler
+  async function onSubmit(values: LoginFormValues) {
+    setError(null); // Clear previous errors
+    setIsLoading(true);
+    console.log('Submitting login form:', values);
+
+    try {
+      // Use signIn from next-auth
+      const result = await signIn('credentials', {
+        redirect: false, // Prevent automatic redirect, handle manually
+        email: values.email,
+        password: values.password,
+      });
+
+      setIsLoading(false);
+
+      if (result?.error) {
+        // Handle authentication errors (e.g., wrong password)
+        console.error('SignIn Error:', result.error);
+        setError(result.error || 'Invalid email or password.');
+      } else if (result?.ok) {
+        // Login successful
+        console.log('SignIn successful:', result);
+        // Redirect to a protected page, e.g., dashboard or home
+        router.push('/'); // Or '/dashboard'
+        router.refresh(); // Optional: Refresh server components
+      } else {
+        // Handle other unexpected cases
+        setError('An unknown error occurred during login.');
+        console.error('Unknown SignIn result:', result);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      // Catch unexpected errors during the signIn process itself
+      console.error('Exception during onSubmit:', err);
+      setError('An unexpected error occurred. Please try again.');
+    }
   }
 
   return (
@@ -74,6 +109,12 @@ export default function LoginPage() {
           {/* 4. Build the form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Display error message */}
+              {error && (
+                <div className="text-red-500 text-sm p-3 bg-red-100 border border-red-400 rounded">
+                  {error}
+                </div>
+              )}
               <FormField
                 control={form.control}
                 name="email"
@@ -100,8 +141,8 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full cursor-pointer">
-                Log In
+              <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+                {isLoading ? 'Logging in...' : 'Log In'}
               </Button>
             </form>
           </Form>

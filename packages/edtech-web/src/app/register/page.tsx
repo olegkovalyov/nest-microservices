@@ -11,7 +11,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -26,6 +25,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+
+import { signIn } from 'next-auth/react'; // Import signIn
+import { useRouter } from 'next/navigation'; // Import useRouter for redirection
+import { useState } from 'react'; // Import useState for error/loading
 
 // 1. Define the validation schema using Zod
 const registerFormSchema = z.object({
@@ -52,6 +55,10 @@ const defaultValues: Partial<RegisterFormValues> = {
 };
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null); // State for error message
+  const [isLoading, setIsLoading] = useState<boolean>(false); // State for loading indicator
+
   // 2. Define the form using react-hook-form
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -59,14 +66,46 @@ export default function RegisterPage() {
     mode: 'onChange', // Validate on change for immediate feedback
   });
 
-  // 3. Define a submit handler (placeholder)
-  function onSubmit(values: RegisterFormValues) {
-    // IMPORTANT: Replace with your actual registration logic (e.g., API call)
-    console.log('Form Submitted:', values);
-    // Simulate API call
-    alert(`Registration submitted!\nCheck console for details.`);
-    // Reset form or redirect user after successful submission
-    // form.reset(); 
+  // 3. Define a submit handler
+  async function onSubmit(values: RegisterFormValues) {
+    setError(null); // Clear previous errors
+    setIsLoading(true);
+    console.log('Submitting registration form:', values);
+
+    try {
+      // Use signIn for registration via CredentialsProvider
+      const result = await signIn('credentials', {
+        redirect: false, // Handle redirect manually
+        email: values.email,
+        password: values.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        // No need to send confirmPassword to the backend
+      });
+
+      setIsLoading(false);
+
+      if (result?.error) {
+        // Handle errors (e.g., email already exists, backend validation)
+        console.error('Registration SignIn Error:', result.error);
+        setError(result.error || 'Registration failed. Please try again.');
+      } else if (result?.ok) {
+        // Registration successful
+        console.log('Registration SignIn successful:', result);
+        // Redirect to login page or a success page
+        alert('Registration successful! Please log in.'); // Temporary feedback
+        router.push('/login');
+      } else {
+        // Handle other unexpected cases
+        setError('An unknown error occurred during registration.');
+        console.error('Unknown Registration SignIn result:', result);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      // Catch unexpected errors during the signIn process itself
+      console.error('Exception during registration onSubmit:', err);
+      setError('An unexpected error occurred. Please try again.');
+    }
   }
 
   return (
@@ -82,6 +121,12 @@ export default function RegisterPage() {
           {/* 4. Build the form using shadcn/ui components */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Display error message */}
+              {error && (
+                <div className="text-red-500 text-sm p-3 bg-red-100 border border-red-400 rounded">
+                  {error}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -149,18 +194,18 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full cursor-pointer">
-                Create Account
+              <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+                {isLoading ? 'Registering...' : 'Create Account'}
               </Button>
             </form>
           </Form>
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{' '}
+            <Link href="/login" className="underline">
+              Login here
+            </Link>
+          </div>
         </CardContent>
-        <CardFooter className="text-center text-sm">
-          Already have an account?{' '}
-          <Link href="/login" className="underline">
-            Log in
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

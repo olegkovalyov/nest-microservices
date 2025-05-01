@@ -22,7 +22,7 @@
     "@nestjs/microservices": "^11.1.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.0",
-    "@nestjs/swagger": "^11.1.5",
+    "@nestjs/swagger": "^11.1.6",
     "@nestjs/testing": "^11.1.0",
     "@nestjs/typeorm": "^11.0.0",
     "@protobuf-ts/grpc-transport": "^2.9.6",
@@ -40,6 +40,7 @@
     "qs": "^6.11.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.22"
   },
   "devDependencies": {

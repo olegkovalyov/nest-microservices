@@ -5,11 +5,11 @@ import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
 import { Layout } from "@/components/Layout"; 
 import { cn } from "@/lib/utils"; 
-
+import { Providers } from './providers'; 
 
 export const metadata: Metadata = {
   title: "EdTech Platform", 
-  description: "Online learning platform", 
+  description: "Modern EdTech Platform", 
 };
 
 export default function RootLayout({
@@ -26,7 +26,9 @@ export default function RootLayout({
           GeistMono.variable
         )}
       >
-        <Layout>{children}</Layout> 
+        <Providers>
+          <Layout>{children}</Layout> 
+        </Providers>
       </body>
     </html>
   );

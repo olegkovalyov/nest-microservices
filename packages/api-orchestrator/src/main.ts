@@ -9,6 +9,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import * as express from 'express';
 import cookieParser from 'cookie-parser';
 import { GrpcExceptionFilter } from './common/filters/grpc-exception.filter';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
@@ -40,9 +41,39 @@ async function bootstrap() {
     app.use(express.urlencoded({extended: true}));
     const globalPrefix = 'api/v1';
     app.setGlobalPrefix(globalPrefix);
+
+    const config = new DocumentBuilder()
+      .setTitle('API Orchestrator')
+      .setDescription('The main API gateway for the EdTech platform, orchestrating calls to microservices.')
+      .setVersion('1.0')
+      .addTag('Users', 'User management endpoints') // Add tags for controllers
+      .addTag('Auth', 'Authentication endpoints')   // Add more tags as needed
+      .addBearerAuth( // Add JWT Bearer token authentication
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'JWT-auth', // Name of the security scheme (can be anything)
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    // Serve Swagger UI at /api/docs endpoint
+    SwaggerModule.setup('api/docs', app, document, {
+       swaggerOptions: {
+         persistAuthorization: true, // Persist authorization in Swagger UI
+       },
+       customSiteTitle: 'API Orchestrator Docs', // Optional: Custom title
+    });
+
     const port = process.env.API_ORCHESTRATOR_PORT || 3000;
     await app.listen(port);
     Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    Logger.log(`📚 Swagger UI available at: http://localhost:${port}/api/docs`); // Log Swagger path
   } catch (error: unknown) {
     if (error instanceof Error) {
       Logger.error(`❌ Error starting server: ${error.message}`, error.stack);
